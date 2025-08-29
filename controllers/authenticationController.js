@@ -1,5 +1,6 @@
 const users = require("../db/models/users")
 const bcrypt = require("bcryptjs")
+
 exports.signUp = async (req, res) => {
     try {
         let body = req.body;
@@ -48,13 +49,63 @@ exports.signUp = async (req, res) => {
         }
 
         const addUser = await users.create(newUser);
-        if (addUser) {
-            return res.status(200).send({
-                sucess: true,
-                message: "successfully signed up"
-            })
-        }
+
+        return res.status(200).send({
+            sucess: true,
+            message: "successfully signed up"
+        })
+
     } catch (error) {
         console.log("error while signing up: ", error)
+        return res.status(400).send({
+            success : false,
+            message : error.message || error
+        })
+    }
+}
+
+exports.logIn = async (req, res) => {
+    try {
+        let body = req.body;
+        let email = body.email;
+        if (!email) {
+            return res.status(400).json({
+                success: false,
+                message: "Please enter email"
+            })
+        }
+        let password = body.password;
+        if (!password) {
+            return res.status(400).json({
+                success: false,
+                message: "please enter password"
+            })
+        }
+
+        const userData = await users.findOne({ email: email })
+        if (!userData) {
+            return res.status(400).json({
+                success: false,
+                message: "email not found"
+            })
+        }
+
+        const passwordCheck = await bcrypt.compareSync(password, userData.password)
+
+        if (passwordCheck) {
+            return res.status(200).json({
+                success: true,
+                message: "successful"
+            })
+        } else {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid password"
+            })
+        }
+
+
+    } catch (err) {
+        console.log(err)
     }
 }
