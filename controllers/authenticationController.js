@@ -109,3 +109,27 @@ exports.logIn = async (req, res) => {
         console.log(err)
     }
 }
+
+
+exports.forgotPassword = async (req, res) => {
+    try {
+        let body = req.body;
+        let email = email.body
+        if(!email) {
+            return res.status(400).json({
+                success : false,
+                message : "please enter email"
+            })
+        }
+        const userEmail = await users.findOne({email: email})
+        if(userEmail){
+            const generateOtp = () => {
+                return Math.floor(100000 + Math.random()*900000).toString()
+            }
+        }else{
+            console.log("email not found")
+        }
+    } catch (error) {
+        console.log("error :", error)
+    }
+}
