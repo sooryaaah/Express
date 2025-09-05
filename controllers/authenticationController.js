@@ -124,30 +124,30 @@ exports.emailVerification = async (req, res) => {
             })
         }
         const userEmail = await users.findOne({ email: email })
-        
+
         if (!userEmail) {
             return res.status(400).json({
                 success: false,
                 message: "email not found"
             })
-            
-            
- 
-        } let oneTimePass = generateOtp()
-            console.log(oneTimePass)
-            
 
-            const newOtp = {
-                email : userEmail.email,
-                otp : oneTimePass
-                
-            }
-            const otpass = await otpSchema.create(newOtp);
-           return res.status(200).json({
-                success: true,
-                message: "otp generated, please check your email",
-                data : userEmail.email
-            })
+
+
+        } let oneTimePass = generateOtp()
+        console.log(oneTimePass)
+
+
+        const newOtp = {
+            email: userEmail.email,
+            otp: oneTimePass
+
+        }
+        const otpass = await otpSchema.create(newOtp);
+        return res.status(200).json({
+            success: true,
+            message: "otp generated, please check your email",
+            data: userEmail.email
+        })
     } catch (error) {
         console.log("error :", error)
         return res.status(400).json({
@@ -159,8 +159,34 @@ exports.emailVerification = async (req, res) => {
 
 exports.otpVerification = async (req, res) => {
     try {
-        
+        let body = req.body
+        let email = body.email
+        let otp = body.otp
+
+        const otpData = await users.findOne({ email: email }) // doubt
+        if (!otpData) {
+            return res.status(400).json({
+                success: false,
+                message: "Otp has expired"
+            })
+        }
+        if (otpData.otp !== otp) {
+            return res.status(400).json({
+                success: false,
+                message: "invalid otp"
+            })
+        }
+
+        return res.status(200).json({
+            success: true,
+            mssage: "Otp successfully verified"
+        })
+
     } catch (error) {
-        
+        console.log(error)
+        return res.status(400).json({
+            success: false,
+            message: error
+        })
     }
 }
