@@ -1,5 +1,7 @@
 const users = require("../db/models/users")
 const bcrypt = require("bcryptjs")
+const generateOtp = require("../utils/otpGenerated").generateOtp
+const otpSchema = require("../db/models/otp");
 
 exports.signUp = async (req, res) => {
     try {
@@ -58,8 +60,8 @@ exports.signUp = async (req, res) => {
     } catch (error) {
         console.log("error while signing up: ", error)
         return res.status(400).send({
-            success : false,
-            message : error.message || error
+            success: false,
+            message: error.message || error
         })
     }
 }
@@ -111,25 +113,54 @@ exports.logIn = async (req, res) => {
 }
 
 
-exports.forgotPassword = async (req, res) => {
+exports.emailVerification = async (req, res) => {
     try {
         let body = req.body;
-        let email = email.body
-        if(!email) {
+        let email = body.email
+        if (!email) {
             return res.status(400).json({
-                success : false,
-                message : "please enter email"
+                success: false,
+                message: "please enter email"
             })
         }
-        const userEmail = await users.findOne({email: email})
-        if(userEmail){
-            const generateOtp = () => {
-                return Math.floor(100000 + Math.random()*900000).toString()
+        const userEmail = await users.findOne({ email: email })
+        
+        if (!userEmail) {
+            return res.status(400).json({
+                success: false,
+                message: "email not found"
+            })
+            
+            
+ 
+        } let oneTimePass = generateOtp()
+            console.log(oneTimePass)
+            
+
+            const newOtp = {
+                email : userEmail.email,
+                otp : oneTimePass
+                
             }
-        }else{
-            console.log("email not found")
-        }
+            const otpass = await otpSchema.create(newOtp);
+           return res.status(200).json({
+                success: true,
+                message: "otp generated, please check your email",
+                data : userEmail.email
+            })
     } catch (error) {
         console.log("error :", error)
+        return res.status(400).json({
+            success: false,
+            message: error.message || error
+        })
+    }
+}
+
+exports.otpVerification = async (req, res) => {
+    try {
+        
+    } catch (error) {
+        
     }
 }

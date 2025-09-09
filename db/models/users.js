@@ -15,15 +15,10 @@ const userSchema = new mongoose.Schema({
         require : true
 
 
-    },
-     otp : {
-        type: String,
-    expiresAt : {
-        type : Date,
-        default : () => Date.now() * 5 * 60 * 1000
     }
-}
+    
 })
+
 
 
 
