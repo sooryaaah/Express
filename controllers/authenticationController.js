@@ -2,6 +2,9 @@ const users = require("../db/models/users")
 const bcrypt = require("bcryptjs")
 const generateOtp = require("../utils/otpGenerated").generateOtp
 const otpSchema = require("../db/models/otp");
+const jwt = require("jsonwebtoken")
+const dotenv = require('dotenv')
+dotenv.config()
 
 exports.signUp = async (req, res) => {
     try {
@@ -50,11 +53,16 @@ exports.signUp = async (req, res) => {
             password: hashedPassword
         }
 
-        const addUser = await users.create(newUser);
+        const addUser = await users.create(newUser)
+
+        const token = jwt.sign({Id:addUser._id}, process.env.PRIVATE_KEY, {expiresIn:"10d"} )             // _id = mongoDB variable
+       
+
 
         return res.status(200).send({
             sucess: true,
-            message: "successfully signed up"
+            message: "successfully signed up",
+            data: token
         })
 
     } catch (error) {
